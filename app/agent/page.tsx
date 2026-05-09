@@ -9,54 +9,90 @@ import ChatBox from "../components/chat/ChatBox";
 
 export default function AgentPage() {
   const [conversations, setConversations] = useState<any[]>([]);
-  const [activeId, setActiveId] = useState<string | null>(null);
 
-  // load conversations
+  const [activeId, setActiveId] =
+    useState<string>("");
+
+  // 🔥 old messages
+  const [history, setHistory] = useState<any[]>([]);
+
+  // 🔥 realtime messages
+  const { messages, setMessages } =
+    useConversationStream(activeId);
+
+  // load conversation list
   useEffect(() => {
-    axios.get("/api/debug/conversations").then((res) => {
-      setConversations(res.data);
-    });
+    axios
+      .get("/api/debug/conversations")
+      .then((res) => {
+        setConversations(res.data);
+      });
   }, []);
 
-  const { messages, setMessages } =
-    useConversationStream(activeId || "");
+  // 🔥 LOAD OLD HISTORY
+  async function loadConversation(id: string) {
+    setActiveId(id);
+
+    const res = await axios.get(
+      `/api/messages?conversationId=${id}`
+    );
+
+    setHistory(res.data);
+
+    // clear old realtime state
+    setMessages([]);
+  }
+
+  // 🔥 merge old + realtime
+  const allMessages = [...history, ...messages];
 
   return (
-    <div className="flex max-w-5xl mx-auto mt-10 gap-4">
-      
-      {/* LEFT SIDE - LIST */}
-      <div className="w-1/3 space-y-2 border p-2">
+    <div className="flex h-screen">
+
+      {/* LEFT */}
+      <div className="w-1/3 border-r overflow-y-auto">
+
         {conversations.map((c) => (
           <div
             key={c.id}
-            onClick={() => setActiveId(c.id)}
-            className={`p-2 border cursor-pointer rounded ${
-              activeId === c.id ? "bg-gray-200" : ""
+            onClick={() => loadConversation(c.id)}
+            className={`p-3 border-b cursor-pointer ${
+              activeId === c.id
+                ? "bg-gray-200"
+                : ""
             }`}
           >
             <p className="font-bold text-sm">
-              Conversation: {c.id}
+              {c.customerId}
             </p>
-            <p className="text-xs text-gray-500">
-              {c.messages?.[0]?.body || "No messages"}
+
+            <p className="text-xs text-gray-500 truncate">
+              {
+                c.messages?.[
+                  c.messages.length - 1
+                ]?.body
+              }
             </p>
           </div>
         ))}
+
       </div>
 
-      {/* RIGHT SIDE - CHAT */}
-      <div className="w-2/3">
+      {/* RIGHT */}
+      <div className="w-2/3 flex flex-col">
+
         {activeId ? (
           <ChatBox
             conversationId={activeId}
-            messages={messages}
+            messages={allMessages}
             setMessages={setMessages}
           />
         ) : (
-          <div className="text-gray-500">
+          <div className="flex items-center justify-center h-full">
             Select a conversation
           </div>
         )}
+
       </div>
     </div>
   );

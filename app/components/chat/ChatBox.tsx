@@ -2,17 +2,15 @@
 
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
-import { Message } from "@/app/hooks/useConversationStream";
+// import { Message } from "@/app/hooks/useConversationStream";
+
+
 
 export default function ChatBox({
   conversationId,
   messages,
   setMessages,
-}: {
-  conversationId: string;
-  messages: Message[];
-  setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
-}) {
+}: any) {
   const [text, setText] = useState("");
   const bottomRef = useRef<HTMLDivElement | null>(null);
 
@@ -31,27 +29,34 @@ export default function ChatBox({
 
     setText("");
   }
+  console.log(messages)
 
   return (
-    <div className="flex flex-col h-[500px] border rounded p-3">
-      {/* messages */}
-      <div className="flex-1 overflow-y-auto space-y-2">
-        {messages.map((m) => (
-          <div key={m.id} className="p-2 bg-gray-100 rounded">
+    <>
+      {/* MESSAGES */}
+      <div className="flex-1 overflow-y-auto p-3 space-y-2">
+
+        {messages.map((m: any) => (
+          <div
+            key={m.id}
+            className="p-2 rounded bg-gray-100"
+          >
             {m.body}
           </div>
         ))}
+
         <div ref={bottomRef} />
       </div>
 
-      {/* input */}
-      <div className="flex gap-2 mt-2">
+      {/* INPUT */}
+      <div className="flex border-t p-2 gap-2">
         <input
-          className="border flex-1 p-2"
+          className="flex-1 border p-2"
           value={text}
           onChange={(e) => setText(e.target.value)}
           placeholder="Type message..."
         />
+
         <button
           onClick={sendMessage}
           className="bg-black text-white px-4"
@@ -59,6 +64,6 @@ export default function ChatBox({
           Send
         </button>
       </div>
-    </div>
+    </>
   );
 }
