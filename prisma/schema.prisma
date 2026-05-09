@@ -6,6 +6,15 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+enum UserRole {
+  CUSTOMER
+  AGENT
+}
+
+enum ConvStatus {
+  OPEN
+  CLOSED
+}
 
 model Account {
   id                String  @id @default(cuid())
@@ -39,9 +48,8 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
-// App tables
-enum UserRole { CUSTOMER  AGENT }
-enum ConvStatus { OPEN  CLOSED }
+
+
 
 model User {
   id            String         @id @default(cuid())

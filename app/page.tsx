@@ -9,7 +9,7 @@ export default function Home() {
       hellooo
 
       <div>
-        hiiii
+       
       </div>
     </div>
   );
