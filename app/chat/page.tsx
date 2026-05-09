@@ -32,8 +32,9 @@ export default async function ChatPage() {
 
   return (
     <ChatClient
-      conversationId={conversation.id}
-      initialMessages={messages}
-    />
+  conversationId={conversation.id}
+  initialMessages={messages}
+  currentUserId={user.id}
+/>
   );
 }

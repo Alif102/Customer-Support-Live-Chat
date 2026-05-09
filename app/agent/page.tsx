@@ -44,7 +44,13 @@ export default function AgentPage() {
   }
 
   // 🔥 merge old + realtime
-  const allMessages = [...history, ...messages];
+const allMessages = [
+  ...history,
+  ...messages.filter(
+    (m) =>
+      !history.some((h) => h.id === m.id)
+  ),
+];
 
   return (
     <div className="flex h-screen">
@@ -83,10 +89,11 @@ export default function AgentPage() {
 
         {activeId ? (
           <ChatBox
-            conversationId={activeId}
-            messages={allMessages}
-            setMessages={setMessages}
-          />
+  conversationId={activeId}
+  messages={allMessages}
+  setMessages={setMessages}
+  currentUserId={"AGENT"} // temporary
+/>
         ) : (
           <div className="flex items-center justify-center h-full">
             Select a conversation

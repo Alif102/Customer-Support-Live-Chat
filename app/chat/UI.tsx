@@ -1,50 +1,32 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useConversationStream } from "../hooks/useConversationStream";
+import { useState } from "react";
 import ChatBox from "../components/chat/ChatBox";
+
+
+type Props = {
+  conversationId: string;
+  initialMessages: any[];
+  currentUserId: string;
+};
 
 export default function ChatClient({
   conversationId,
   initialMessages,
-}: any) {
-  const { messages, setMessages } =
-    useConversationStream(conversationId);
+  currentUserId,
+}: Props) {
 
-  // 🔥 FIX: proper merge ONCE
-  const [hydrated, setHydrated] = useState(false);
-
-  const [allMessages, setAllMessages] = useState<any[]>(initialMessages);
-
-  // merge initial once
-  useEffect(() => {
-    if (!hydrated && initialMessages?.length) {
-      setAllMessages(initialMessages);
-      setHydrated(true);
-    }
-  }, [initialMessages, hydrated]);
-
-  // merge SSE messages properly
-  useEffect(() => {
-    if (messages.length > 0) {
-      setAllMessages((prev) => {
-        const map = new Map();
-
-        [...prev, ...messages].forEach((m) => {
-          map.set(m.id, m);
-        });
-
-        return Array.from(map.values());
-      });
-    }
-  }, [messages]);
-
+  // 🔥 realtime state
+  const [messages, setMessages] =
+    useState(initialMessages);
+    console.log(messages)
   return (
-    <div className="max-w-xl mx-auto mt-10">
+    <div className="max-w-3xl mx-auto h-screen p-4">
       <ChatBox
         conversationId={conversationId}
-        messages={allMessages}
-        setMessages={setAllMessages}
+        messages={messages}
+        setMessages={setMessages}
+        currentUserId={currentUserId}
       />
     </div>
   );
