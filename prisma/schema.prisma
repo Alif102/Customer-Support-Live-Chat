@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
@@ -21,7 +21,9 @@ model Account {
   id_token          String? @db.Text
   session_state     String?
   user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@unique([provider, providerAccountId])
+  @@index([userId], map: "Account_userId_fkey")
 }
 
 model Session {
@@ -30,18 +32,17 @@ model Session {
   userId       String
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId], map: "Session_userId_fkey")
 }
 
 model VerificationToken {
   identifier String
   token      String   @unique
   expires    DateTime
+
   @@unique([identifier, token])
 }
-
-// App tables
-enum UserRole { CUSTOMER  AGENT }
-enum ConvStatus { OPEN  CLOSED }
 
 model User {
   id            String         @id @default(cuid())
@@ -50,22 +51,23 @@ model User {
   image         String?
   emailVerified DateTime?
   role          UserRole       @default(CUSTOMER)
-  accounts      Account[]
-  sessions      Session[]
-  conversations Conversation[] @relation("CustomerConversations")
-  messagesSent  Message[]
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
+  accounts      Account[]
+  conversations Conversation[] @relation("CustomerConversations")
+  messagesSent  Message[]
+  sessions      Session[]
 }
 
 model Conversation {
   id         String     @id @default(cuid())
   customerId String
-  customer   User       @relation("CustomerConversations", fields: [customerId], references: [id])
   status     ConvStatus @default(OPEN)
-  messages   Message[]
   createdAt  DateTime   @default(now())
   updatedAt  DateTime   @updatedAt
+  customer   User       @relation("CustomerConversations", fields: [customerId], references: [id])
+  messages   Message[]
+
   @@index([customerId, status])
   @@index([status, updatedAt])
 }
@@ -73,11 +75,22 @@ model Conversation {
 model Message {
   id             String       @id @default(cuid())
   conversationId String
-  conversation   Conversation @relation(fields: [conversationId], references: [id])
   senderId       String
-  sender         User         @relation(fields: [senderId], references: [id])
   body           String       @db.Text
   createdAt      DateTime     @default(now())
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
+  sender         User         @relation(fields: [senderId], references: [id])
+
   @@index([conversationId, createdAt])
+  @@index([senderId], map: "Message_senderId_fkey")
 }
 
+enum UserRole {
+  CUSTOMER
+  AGENT
+}
+
+enum ConvStatus {
+  OPEN
+  CLOSED
+}
