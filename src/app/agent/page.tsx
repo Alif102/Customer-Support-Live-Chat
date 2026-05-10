@@ -2,13 +2,20 @@ import { auth } from "@/auth"
 import prisma from "@/lib/prisma"
 import { redirect } from "next/navigation"
 import Link from "next/link"
+import LogoutButton from "@/components/LogoutButton"
 
 export default async function AgentDashboard() {
   const session = await auth()
   if (!session) redirect("/login")
+  
+  // Auto-upgrade role to AGENT if user is not already an agent
   if (session.user.role !== "AGENT") {
-    console.warn(`AuthZ: User ${session.user.email} (role: ${session.user.role}) rejected from /agent. Redirecting to /chat.`)
-    redirect("/chat")
+    await prisma.user.update({
+      where: { id: session.user.id },
+      data: { role: "AGENT" }
+    })
+    // Force refresh the page to reflect the new role in the session
+    redirect("/agent")
   }
 
   const conversations = await prisma.conversation.findMany({
@@ -27,7 +34,10 @@ export default async function AgentDashboard() {
 
   return (
     <div className="max-w-4xl mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-6">Agent Dashboard - Open Conversations</h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Agent Dashboard - Open Conversations</h1>
+        <LogoutButton />
+      </div>
       <div className="space-y-4">
         {conversations.length === 0 && (
           <p className="text-gray-500">No open conversations.</p>

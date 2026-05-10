@@ -1,11 +1,10 @@
 import { PrismaClient } from "@prisma/client"
-import "dotenv/config"
 
 const prisma = new PrismaClient()
 
 async function main() {
   // const agentEmail = process.env.SEED_AGENT_EMAIL
-  const agentEmail = "rizwan@gmail.com"
+  const agentEmail = "rizwanrakib1163018@gmail.com"
 
   if (!agentEmail) {
     console.warn("SEED_AGENT_EMAIL not set, skipping agent seeding.")

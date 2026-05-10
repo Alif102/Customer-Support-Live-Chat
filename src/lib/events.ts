@@ -1,6 +1,12 @@
 import { EventEmitter } from "events"
 
-const ee = new EventEmitter()
+// Ensure the emitter is a singleton across hot-reloads
+const globalForEvents = global as typeof globalThis & {
+  ee?: EventEmitter
+}
+
+const ee = globalForEvents.ee || new EventEmitter()
+if (process.env.NODE_ENV !== "production") globalForEvents.ee = ee
 
 export function publish(channel: string, payload: unknown) {
   console.log(`[Events] Publish to ${channel}:`, payload)
