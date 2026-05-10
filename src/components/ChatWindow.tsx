@@ -72,8 +72,9 @@ export default function ChatWindow({
         ref={scrollRef}
         className="flex-1 overflow-y-auto p-4 space-y-4"
       >
-        {messages.map((m) => {
+        {messages.map((m, index) => {
           const isMe = m.senderId === currentUserId
+          const isLast = index === messages.length - 1
           return (
             <div
               key={m.id}
@@ -91,12 +92,16 @@ export default function ChatWindow({
                 </div>
                 <div>{m.body}</div>
               </div>
-              <div className="text-[10px] text-gray-400 mt-1">
-                {new Date(m.createdAt).toLocaleTimeString()}
-              </div>
+              {isLast && (
+                <div className="text-[10px] text-gray-400 mt-1">
+                  {new Date(m.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </div>
+              )}
             </div>
           )
         })}
+
+
       </div>
 
       <form onSubmit={sendMessage} className="p-4 border-t flex gap-2">

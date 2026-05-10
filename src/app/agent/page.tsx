@@ -10,12 +10,14 @@ export default async function AgentDashboard() {
   
   // Auto-upgrade role to AGENT if user is not already an agent
   if (session.user.role !== "AGENT") {
-    await prisma.user.update({
-      where: { id: session.user.id },
-      data: { role: "AGENT" }
-    })
+    // await prisma.user.update({
+    //   where: { id: session.user.id },
+    //   data: { role: "AGENT" }
+    // })
+
     // Force refresh the page to reflect the new role in the session
-    redirect("/agent")
+    // redirect("/agent")
+    redirect("/chat")
   }
 
   const conversations = await prisma.conversation.findMany({
