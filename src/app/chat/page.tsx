@@ -3,12 +3,13 @@ import prisma from "@/lib/prisma"
 import { redirect } from "next/navigation"
 import ChatWindow from "@/components/ChatWindow"
 import LogoutButton from "@/components/LogoutButton"
+import { logger } from "@/lib/logger"
 
 export default async function ChatPage() {
   const session = await auth()
   if (!session) redirect("/login")
   if (session.user.role !== "CUSTOMER") {
-    console.warn(`AuthZ: User ${session.user.email} (role: ${session.user.role}) rejected from /chat. Redirecting to /agent.`)
+    logger.warn({ email: session.user.email, role: session.user.role }, "AuthZ: Non-customer rejected from /chat");
     redirect("/agent")
   }
 

@@ -1,4 +1,5 @@
 import { EventEmitter } from "events"
+import { logger } from "@/lib/logger"
 
 // Ensure the emitter is a singleton across hot-reloads
 const globalForEvents = global as typeof globalThis & {
@@ -9,16 +10,16 @@ const ee = globalForEvents.ee || new EventEmitter()
 if (process.env.NODE_ENV !== "production") globalForEvents.ee = ee
 
 export function publish(channel: string, payload: unknown) {
-  console.log(`[Events] Publish to ${channel}:`, payload)
+  logger.info({ channel, payload }, "[Events] Publish")
   ee.emit(channel, payload)
 }
 
 export function subscribe(channel: string, handler: (payload: unknown) => void) {
-  console.log(`[Events] Subscribed to ${channel}`)
+  logger.info({ channel }, "[Events] Subscribed")
   ee.on(channel, handler)
   
   return () => {
-    console.log(`[Events] Unsubscribed from ${channel}`)
+    logger.info({ channel }, "[Events] Unsubscribed")
     ee.off(channel, handler)
   }
 }

@@ -2,6 +2,7 @@ import NextAuth from "next-auth"
 import Google from "next-auth/providers/google"
 import {PrismaAdapter} from "@auth/prisma-adapter"
 import prisma from "@/lib/prisma"
+import { logger } from "@/lib/logger"
 
 export const {handlers, auth, signIn, signOut} = NextAuth({
     adapter: PrismaAdapter(prisma),
@@ -40,11 +41,11 @@ export const {handlers, auth, signIn, signOut} = NextAuth({
     },
     events: {
         async signIn({user, account}) {
-            console.log(`Sign-in: ${user.email} via ${account?.provider}`)
+            logger.info({ email: user.email, provider: account?.provider }, "Sign-in")
         },
         async signOut(message) {
             if ("session" in message && message.session) {
-                console.log(`Sign-out: Session ${message.session.sessionToken}`)
+                logger.info({ sessionToken: message.session.sessionToken }, "Sign-out")
             }
         },
     },

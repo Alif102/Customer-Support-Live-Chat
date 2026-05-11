@@ -14,11 +14,12 @@
 
 
 import { PrismaClient } from '@prisma/client'
+import { logger } from '@/lib/logger'
 
 const prismaClientSingleton = () => {
-  console.log("Creating new PrismaClient instance")
+  logger.info("Creating new PrismaClient instance")
   return new PrismaClient({
-    log: ['query', 'error', 'warn'],
+    log: ['error', 'warn'],
     errorFormat: 'pretty',
   })
 }

@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState, useRef } from "react"
+import { logger } from "@/lib/logger"
 
 interface Message {
   id: string
@@ -62,7 +63,7 @@ export default function ChatWindow({
         headers: { "Content-Type": "application/json" },
       })
     } catch (err) {
-      console.error("Failed to send message:", err)
+      logger.error({ err }, "Failed to send message")
     }
   }
 
